@@ -13,10 +13,10 @@ n_folds = 5
 
 os.makedirs(save_path, exist_ok=True)
 
-#load existing progress (if any)
+# load existing progress (if any)
 if os.path.exists(metrics_dataset):
-    df_existing = pd.read_csv(metrics_dataset)         
-    all_data = df_existing.to_dict(orient="list")          
+    df_existing = pd.read_csv(metrics_dataset)
+    all_data = df_existing.to_dict(orient="list")
     completed = set(
         zip(all_data["model"], all_data["iteration"], all_data["fold"])
     )
@@ -48,16 +48,20 @@ def save_progress(accuracy, precision, recall, f1, iteration, fold, model):
 for model in models:
     for iteration in range(n_iterations):
         for fold in range(n_folds):
-            if (model, iteration, fold) in completed:
+            iter_num = iteration + 1
+            fold_num = fold + 1
+
+            if (model, iter_num, fold_num) in completed:
                 continue
-            
-            fold = fold+1
-            iteration = iteration + 1
 
-            train_data_path = os.path.join(sampled_dataset_paths, f"Iteration {iteration}", f"Fold {fold}", f"train.pkl")
-            test_data_path = os.path.join(sampled_dataset_paths, f"Iteration {iteration}", f"Fold {fold}", f"test.pkl")
+            train_data_path = os.path.join(
+                sampled_dataset_paths, f"Iteration {iter_num}", f"Fold {fold_num}", "train.pkl"
+            )
+            test_data_path = os.path.join(
+                sampled_dataset_paths, f"Iteration {iter_num}", f"Fold {fold_num}", "test.pkl"
+            )
 
-            print(f"\rCurrently: {model} iter {iteration} fold {fold}        ", end='', flush=True)
+            print(f"\rCurrently: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
 
             if model == "svm":
                 runner = SVM(train_data_path, test_data_path)
@@ -65,6 +69,6 @@ for model in models:
                 runner = CNN(train_data_path, test_data_path)
 
             accuracy, precision, recall, f1 = runner.run()
-            
-            save_progress(accuracy, precision, recall, f1, iteration, fold, model)
-            print(f"\rDone: {model} iter {iteration} fold {fold}        ", end='', flush=True)
+
+            save_progress(accuracy, precision, recall, f1, iter_num, fold_num, model)
+            print(f"\rDone: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
