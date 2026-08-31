@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 
@@ -31,10 +31,9 @@ class SVM:
         y_test = self.test_dataset["Character"]
 
         #initialize and fit svm model
-        svm = SVC(
-            C=1.0,
-            kernel="rbf",
-            gamma="scale"
+        svm = LinearSVC(
+            dual=False, 
+            max_iter=2000
         )
         svm.fit(x_train, y_train)
 
