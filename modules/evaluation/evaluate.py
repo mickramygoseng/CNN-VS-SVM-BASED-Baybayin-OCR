@@ -61,7 +61,7 @@ for model in models:
                 sampled_dataset_paths, f"Iteration {iter_num}", f"Fold {fold_num}", "test.pkl"
             )
 
-            print(f"\rCurrently: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
+            print(f"\r\n[DEBUG] Currently: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
 
             if model == "svm":
                 runner = SVM(train_data_path, test_data_path)
@@ -71,4 +71,4 @@ for model in models:
             accuracy, precision, recall, f1 = runner.run()
 
             save_progress(accuracy, precision, recall, f1, iter_num, fold_num, model)
-            print(f"\rDone: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
+            print(f"\r\n[DEBUG] Done: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)
