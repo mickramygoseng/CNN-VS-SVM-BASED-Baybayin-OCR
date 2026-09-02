@@ -1,49 +1,77 @@
 import numpy as np
 import pandas as pd
-from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+from sklearn.svm import SVC
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score
+)
 
 
 class SVM:
-    def __init__(self, training:str, test:str) -> None:
-        #datasets
+    def __init__(self, training: str, test: str) -> None:
         self.train_dataset = pd.read_pickle(training)
         self.test_dataset = pd.read_pickle(test)
 
-    def run(self):
-        #label and value splits then flatten binary vector images from 2d to 1d
-        x_train = np.stack(
-            self.train_dataset.
-            drop(columns="Character").
-            iloc[:, 0].apply(
-                lambda x: x.flatten()
-            )
+        self.model = SVC(
+            kernel="rbf",
+            C=1.0,
+            gamma="scale"
         )
-        y_train = self.train_dataset["Character"]
 
-        x_test = np.stack(
-            self.test_dataset.
-            drop(columns="Character").
-            iloc[:, 0].apply(
-                lambda x: x.flatten()
-            )
+    @staticmethod
+    def _prepare(
+        df: pd.DataFrame
+    ) -> tuple[np.ndarray, pd.Series]:
+
+        
+        x = np.stack(
+            df["Binary"]
+            .apply(lambda img: img.flatten())
+            .to_numpy()
         )
-        y_test = self.test_dataset["Character"]
 
-        #initialize and fit svm model
-        svm = LinearSVC(
-            dual=False, 
-            max_iter=2000
-        )
-        svm.fit(x_train, y_train)
+        y = df["Character"]
 
-        #prediction
-        y_pred = svm.predict(x_test)
+        return x, y
 
-        #evaluation
+    def train(self) -> None:
+        x_train, y_train = self._prepare(self.train_dataset)
+
+        self.model.fit(x_train, y_train)
+
+    def evaluate(self) -> tuple[float, float, float, float]:
+        x_test, y_test = self._prepare(self.test_dataset)
+
+        y_pred = self.model.predict(x_test)
+
         accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average="macro")
-        recall = recall_score(y_test, y_pred, average="macro")
-        f1 = f1_score(y_test, y_pred, average="macro")
+
+        precision = precision_score(
+            y_test,
+            y_pred,
+            average="macro",
+            zero_division=0
+        )
+
+        recall = recall_score(
+            y_test,
+            y_pred,
+            average="macro",
+            zero_division=0
+        )
+
+        f1 = f1_score(
+            y_test,
+            y_pred,
+            average="macro",
+            zero_division=0
+        )
 
         return accuracy, precision, recall, f1
+
+    def run(self) -> tuple[float, float, float, float]:
+        self.train()
+        return self.evaluate()
