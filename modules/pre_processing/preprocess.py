@@ -4,7 +4,7 @@ from get_image_paths import Fetch
 from preprocess_images import Preprocess
 
 #paths
-raw_images_directory = 'data/raw_dataset'
+raw_images_directory = 'data/raw_dataset/Grouped'
 save_dataset = 'data/processed_dataset'
 
 #preprocessing
