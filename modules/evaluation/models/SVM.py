@@ -17,8 +17,8 @@ class SVM:
 
         self.model = SVC(
             kernel="rbf",
-            C=1.0,
-            gamma="scale"
+            C=10e10,
+            gamma="auto"
         )
 
     @staticmethod

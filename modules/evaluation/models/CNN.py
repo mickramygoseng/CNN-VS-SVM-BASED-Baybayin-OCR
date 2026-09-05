@@ -24,25 +24,28 @@ class CNN:
         y_test = self.encoder.transform(self.test_dataset["Character"])
         num_classes = len(self.encoder.classes_)
 
-        # set up CNN model
+        
         cnn = models.Sequential([
             layers.Input(shape=(32, 32, 1)),
             layers.Conv2D(32, (3, 3), activation="relu"),
             layers.MaxPooling2D((2, 2)),
             layers.Conv2D(64, (3, 3), activation="relu"),
             layers.MaxPooling2D((2, 2)),
-            layers.Conv2D(64, (3, 3), activation="relu"),
+            layers.Conv2D(128, (3, 3), activation="relu"),
+            layers.MaxPooling2D((2, 2)),
             layers.Flatten(),
-            layers.Dense(64, activation="relu"),
-            layers.Dense(num_classes)
+            layers.Dense(256, activation="relu"),
+            layers.Dropout(0.2),  # 0.8 retention probability
+            layers.Dense(512, activation="relu"),
+            layers.Dense(num_classes, activation="softmax")
         ])
 
-        cnn.compile(optimizer='adam',
-                    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        cnn.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+                    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
                     metrics=['accuracy'])
 
         # model fit + prediction
-        cnn.fit(x_train, y_train, epochs=10, validation_split=0.1)
+        cnn.fit(x_train, y_train, epochs=50, validation_split=0.1)
         y_pred = np.argmax(cnn.predict(x_test), axis=1)
 
         # evaluation
