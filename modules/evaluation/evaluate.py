@@ -12,8 +12,6 @@ models = [ "cnn", "svm" ]
 n_iterations = 10
 n_folds = 5
 
-os.makedirs(save_path, exist_ok=True)
-
 # load existing progress (if any)
 if os.path.exists(metrics_dataset):
     df_existing = pd.read_csv(metrics_dataset)
@@ -33,6 +31,7 @@ else:
     }
     completed = set()
 
+os.makedirs(save_path, exist_ok=True)
 def save_progress(accuracy, precision, recall, f1, iteration, fold, model):
     all_data["model"].append(model)
     all_data["iteration"].append(iteration)
@@ -46,24 +45,16 @@ def save_progress(accuracy, precision, recall, f1, iteration, fold, model):
     df.to_csv(metrics_dataset, index=False)
     completed.add((model, iteration, fold))
 
-# Create and fit label encoder
+# Create and fit label encoder (for CNN)
 encoder = LabelEncoder()
-
 all_labels = []
-
 for iteration in range(1, n_iterations + 1):
     for fold in range(1, n_folds + 1):
         train_path = os.path.join(
-            sampled_dataset_paths,
-            f"Iteration {iteration}",
-            f"Fold {fold}",
-            "train.pkl"
+            sampled_dataset_paths, "cnn", f"Iteration {iteration}", f"Fold {fold}", "train.pkl"
         )
         test_path = os.path.join(
-            sampled_dataset_paths,
-            f"Iteration {iteration}",
-            f"Fold {fold}",
-            "test.pkl"
+            sampled_dataset_paths, "cnn", f"Iteration {iteration}", f"Fold {fold}", "test.pkl"
         )
 
         train_df = pd.read_pickle(train_path)
@@ -74,6 +65,7 @@ for iteration in range(1, n_iterations + 1):
 
 encoder.fit(all_labels)
 
+# Start evaluatuion
 for model in models:
     for iteration in range(n_iterations):
         for fold in range(n_folds):
@@ -84,10 +76,10 @@ for model in models:
                 continue
 
             train_data_path = os.path.join(
-                sampled_dataset_paths, f"Iteration {iter_num}", f"Fold {fold_num}", "train.pkl"
+                sampled_dataset_paths, model, f"Iteration {iter_num}", f"Fold {fold_num}", "train.pkl"
             )
             test_data_path = os.path.join(
-                sampled_dataset_paths, f"Iteration {iter_num}", f"Fold {fold_num}", "test.pkl"
+                sampled_dataset_paths, model, f"Iteration {iter_num}", f"Fold {fold_num}", "test.pkl"
             )
 
             print(f"\r\n[DEBUG] Currently: {model} iter {iter_num} fold {fold_num}        ", end='', flush=True)

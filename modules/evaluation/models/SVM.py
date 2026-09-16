@@ -28,7 +28,7 @@ class SVM:
 
         
         x = np.stack(
-            df["Binary"]
+            df["Features"]
             .apply(lambda img: img.flatten())
             .to_numpy()
         )

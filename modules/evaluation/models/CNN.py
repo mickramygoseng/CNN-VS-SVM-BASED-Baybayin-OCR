@@ -14,8 +14,8 @@ class CNN:
 
     def run(self):
         # label and value splits
-        x_train = np.stack(self.train_dataset["Binary"].to_numpy())
-        x_test = np.stack(self.test_dataset["Binary"].to_numpy())
+        x_train = np.stack(self.train_dataset["Pixels"].to_numpy())
+        x_test = np.stack(self.test_dataset["Pixels"].to_numpy())
 
         x_train = x_train.reshape(-1, 32, 32, 1).astype("float32") 
         x_test = x_test.reshape(-1, 32, 32, 1).astype("float32")

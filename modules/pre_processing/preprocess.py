@@ -4,22 +4,26 @@ from get_image_paths import Fetch
 from preprocess_images import Preprocess
 
 #paths
-raw_images_directory = 'data/raw_dataset/Grouped'
+raw_images_directory = 'data/raw_dataset'
 save_dataset = 'data/processed_dataset'
 
-#preprocessing
-character_metadata = Fetch(raw_images_directory).get_image()
+# Essential set up
 preprocess = Preprocess()
-
-data = {
+svm_data = {
     "Character" : [],
-    "Binary" : []
+    "Features" : []
+}
+cnn_data = {
+    "Character" : [],
+    "Pixels" : []
 }
 
-character_group_tracker = 0
+# Fetch images
+character_metadata = Fetch(raw_images_directory).get_image()
 
+# Begin initial preprocessing
 os.system('cls')
-
+character_group_tracker = 0
 for character in character_metadata:
 
     character_group = os.path.basename(character['Character'])
@@ -30,10 +34,16 @@ for character in character_metadata:
 
     for character_sample in character_sample_paths:
         pre_processed_number += 1
-        binary_image = preprocess.begin(character_sample)
 
-        data["Character"].append(character_group)
-        data["Binary"].append(binary_image)
+        # Preprocess data for SVM models
+        svm_preprocessed = preprocess.begin(character_sample, model_type="SVM")
+        svm_data["Character"].append(character_group)
+        svm_data["Features"].append(svm_preprocessed)
+
+        # Preprocess data for SVM models
+        cnn_preprocessed = preprocess.begin(character_sample, model_type="CNN")
+        cnn_data["Character"].append(character_group)
+        cnn_data["Pixels"].append(cnn_preprocessed)
 
         print(
             f'\rPhase 2: Group {character_group_tracker}/{len(character_metadata)} ("{character_group}") || '
@@ -42,14 +52,16 @@ for character in character_metadata:
             flush=True
         )
 
-df = pd.DataFrame(data)
+# Save preprocessed dataset
+svm_df = pd.DataFrame(svm_data)
+cnn_df = pd.DataFrame(cnn_data)
 
 try:
-    df.to_pickle(os.path.join(save_dataset, "dataset.pkl"))
-    print("[SUCCESS] : dataset.pkl saved")
-    df.to_csv(os.path.join(save_dataset, "dataset.csv"))
-    print("[SUCCESS] : dataset.csv saved")
+    svm_df.to_pickle(os.path.join(save_dataset, "svm_dataset.pkl"))
+    cnn_df.to_pickle(os.path.join(save_dataset, "cnn_dataset.pkl"))
+    print("[SUCCESS] : datasets saved")
+
 except Exception as e:
-    print("[FAILED] : dataset.pkl not saved")
+    print("[FAILED] : datasets not saved")
     print(f"[DEBUG] : {e}")
 
