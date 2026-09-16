@@ -17,9 +17,6 @@ class CNN:
         x_train = np.stack(self.train_dataset["Pixels"].to_numpy())
         x_test = np.stack(self.test_dataset["Pixels"].to_numpy())
 
-        x_train = x_train.reshape(-1, 32, 32, 1).astype("float32") 
-        x_test = x_test.reshape(-1, 32, 32, 1).astype("float32")
-
         y_train = self.encoder.transform(self.train_dataset["Character"]) 
         y_test = self.encoder.transform(self.test_dataset["Character"])
         num_classes = len(self.encoder.classes_)
